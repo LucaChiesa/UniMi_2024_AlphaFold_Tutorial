@@ -26,7 +26,7 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True):
     seq_align = seq_aligner.align(ref_seq, model_seq)
     if example:
         print(f"Aligned sequences:")
-        print(textwrap.wrap(seq_align[0]))
+        print(textwrap.wrap('\n'.join(seq_align[0])))
     aligner =  Bio.PDB.StructureAlignment(seq_align[0], ref_structure, model_structure)
     map_0, map_1 = aligner.get_maps()
 
