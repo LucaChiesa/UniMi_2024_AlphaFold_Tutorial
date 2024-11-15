@@ -1,4 +1,0 @@
-'database': 'GPCRdb_r'
-'state': ['Active']
-'excluded_protein':
-  - 'adrb2_human'

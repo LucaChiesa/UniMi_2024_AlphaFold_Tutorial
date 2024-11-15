@@ -3,8 +3,11 @@ import Bio.Align
 from Bio.Data.SCOPData import protein_letters_3to1 as aa3to1
 import py3Dmol
 import matplotlib.pyplot as plt
+import textwrap
 
-def align_on_ref(model_file, ref_file, ligname = None):
+nl = '\n'
+
+def align_on_ref(model_file, ref_file, ligname = None, example = True):
     pdb_parser = Bio.PDB.PDBParser(QUIET = True)
     ref_structure = pdb_parser.get_structure("reference", ref_file)
     model_structure = pdb_parser.get_structure("model", model_file)
@@ -12,8 +15,14 @@ def align_on_ref(model_file, ref_file, ligname = None):
     ref_seq = ''.join([aa3to1.get(i.resname, None) for i in ref_structure.get_residues() if aa3to1.get(i.resname, None) is not None])
     model_seq = ''.join([aa3to1.get(i.resname, 'X') for i in model_structure.get_residues()])
 
+    if example:
+        print(textwrap.wrap(f"Reference sequence input:{nl}{ref_seq}"))
+        print(textwrap.wrap(f"Model sequence input:{nl}{ref_seq}"))
+
     seq_aligner = Bio.Align.PairwiseAligner()
     seq_align = seq_aligner.align(ref_seq, model_seq)
+    if example:
+        print(textwrap.wrap(f"Aligned sequences:{nl}{seq_align[0]}"))
     aligner =  Bio.PDB.StructureAlignment(seq_align[0], ref_structure, model_structure)
     map_0, map_1 = aligner.get_maps()
 
@@ -30,6 +39,9 @@ def align_on_ref(model_file, ref_file, ligname = None):
     super_imposer = Bio.PDB.Superimposer()
     super_imposer.set_atoms(ref_atoms, model_atoms)
     super_imposer.apply(model_structure.get_atoms())
+
+    if example:
+        print(f"Structures aligned with RMSD: {super_imposer.rms} Å{nl}Rototranslation matrix:{nl}{super_imposer.rotran}")
 
     io = Bio.PDB.PDBIO()
 
