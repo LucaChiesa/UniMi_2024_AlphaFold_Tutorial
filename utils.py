@@ -26,7 +26,7 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True):
     seq_align = seq_aligner.align(ref_seq, model_seq)
     if example:
         print(f"Aligned sequences:")
-        print(textwrap.wrap('\n'.join(seq_align[0])))
+        print(textwrap.wrap(seq_align[0]))
     aligner =  Bio.PDB.StructureAlignment(seq_align[0], ref_structure, model_structure)
     map_0, map_1 = aligner.get_maps()
 
@@ -83,15 +83,12 @@ def show_aligned(model_file,
                 ref_cartoon_color = 'blue',
                 ligand_color = 'magenta',
                 model_sidecahin_color = 'OrangeCarbon',
-                ref_sidecahin_color = 'OrangeCarbon'):
-    view = py3Dmol.view(js='https://3dmol.org/build/3Dmol.js', width = 800, height = 600)
+                ref_sidecahin_color = 'OrangeCarbon',
+                width=800,
+                height=600):
+    view = py3Dmol.view(js='https://3dmol.org/build/3Dmol.js', width = width, height = height)
     view.addModel(open(model_file,'r').read(),'pdb')
     view.addModel(open(ref_file,'r').read(),'pdb')
-
-    #find ligand center of mass
-    pdb_parser = Bio.PDB.PDBParser(QUIET = True)
-    ref_structure = pdb_parser.get_structure("reference", ref_file)
-    
             
     sele = {'resn': 'GST'}
 
