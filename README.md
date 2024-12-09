@@ -1,7 +1,7 @@
 # Rational design and structural characterization of bioactive molecules - UniMi 2024/2025
 ## Protein modelling for drug design using AlphaFold
 
-In this tutorial we will present you how to predict protein structures using AlphaFold2, and how to evalaute the results, as well as some of the state of the art techniques for multistate modelling.
+In this tutorial we will present you how to predict protein structures using AlphaFold2, and how to evalaute the results.
 
 All calculations are performed using the [LIT-AlphaFold](https://github.com/LIT-CCM-lab/LIT-AlphaFold) pipeline, which simplifies input generation and customization compared to the original AlphaFold2 implementation.
 
