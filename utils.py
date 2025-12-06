@@ -1,6 +1,6 @@
 import Bio.PDB
 import Bio.Align 
-from Bio.Data.SCOPData import protein_letters_3to1 as aa3to1
+from Bio.Data.PDBData import protein_letters_3to1_extended as aa3to1
 import py3Dmol
 import matplotlib.pyplot as plt
 import textwrap
@@ -9,11 +9,14 @@ import py3Dmol
 
 nl = '\n'
 
-def align_on_ref(model_file, ref_file, ligname = None, example = True):
+def align_on_ref(model_file, ref_file, ligname = None, example = True, model_is_pdb=False):
     pdb_parser = Bio.PDB.PDBParser(QUIET = True)
     cif_parser = Bio.PDB.MMCIFParser(QUIET = True)
     ref_structure = pdb_parser.get_structure("reference", ref_file)
-    model_structure = cif_parser.get_structure("model", model_file)
+    if model_is_pdb:
+        model_structure = pdb_parser.get_structure("model", model_file)
+    else:
+        model_structure = cif_parser.get_structure("model", model_file)
 
     ref_seq = ''.join([aa3to1.get(i.resname, None) for i in ref_structure.get_residues() if aa3to1.get(i.resname, None) is not None])
     model_seq = ''.join([aa3to1.get(i.resname, 'X') for i in model_structure.get_residues()])
@@ -80,10 +83,10 @@ def add_ghost_atom(structure, coords):
 
 def show_aligned(model_file,
                 ref_file,
-                ligname = None,
+                lignames = [],
                 model_cartoon_color = 'red',
                 ref_cartoon_color = 'blue',
-                ligand_color = 'magenta',
+                ligand_colors = 'magenta',
                 model_sidecahin_color = 'OrangeCarbon',
                 ref_sidecahin_color = 'OrangeCarbon',
                 width=800,
@@ -101,7 +104,7 @@ def show_aligned(model_file,
 
     view.zoomTo()
 
-    if ligname:
+    for ligname, lig_color in zip(lignames, lig_colors):
         selection_0 = {'model': 0, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
         selection_1 = {'model': 1, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
         view.addStyle(selection_0,{'stick':{'colorscheme':model_sidecahin_color,'radius':0.3}})
@@ -112,7 +115,7 @@ def show_aligned(model_file,
                         "function(atom, viewer, event, container){"\
                         "if(atom.label){viewer.removeLabel(atom.label);delete atom.label;}" \
                         "else{atom.label=viewer.addLabel(atom.resn+atom.resi+':'+atom.atom, {'position': atom});}\n}")
-        view.zoomTo({'resn': ligname})
+    view.zoomTo({'resn': ligname})
 
     return view
     
@@ -188,7 +191,7 @@ def plot_msa_v2(msa, sort_lines=True, dpi=100):
 def show_pdb(pdb_file, n_chains, show_sidechains=False, show_mainchains=False, color="lDDT", extension='pdb'):
     #The function show_pdb is adapted from ColabFold
     view = py3Dmol.view(js='https://3dmol.org/build/3Dmol.js',)
-    view.addModel(open(pdb_file,'r').read(), extensions)
+    view.addModel(open(pdb_file,'r').read(), extension)
 
     if color == "lDDT":
         view.setStyle({'cartoon': {'colorscheme': {'prop':'b','gradient': 'roygb','min':50,'max':90}}})
@@ -197,6 +200,8 @@ def show_pdb(pdb_file, n_chains, show_sidechains=False, show_mainchains=False, c
     elif color == "chain":
         for n,chain,color in zip(range(n_chains),alphabet_list,pymol_color_list):
            view.setStyle({'chain':chain},{'cartoon': {'color':color}})
+    view.addStyle({'and':[{'resn':"LIG"}]},
+                        {'stick':{'colorscheme':f"coralCarbon",'radius':0.3}})
 
     if show_sidechains:
         BB = ['C','O','N']
