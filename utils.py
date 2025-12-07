@@ -19,7 +19,7 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True, model_is_
         model_structure = cif_parser.get_structure("model", model_file)
 
     ref_seq = ''.join([aa3to1.get(i.resname, None) for i in ref_structure.get_residues() if aa3to1.get(i.resname, None) is not None])
-    model_seq = ''.join([aa3to1.get(i.resname, 'X') for i in model_structure.get_residues()])
+    model_seq = ''.join([aa3to1.get(i.resname, None) for i in model_structure.get_residues() if aa3to1.get(i.resname, None) is not None])
 
     if example:
         print(f"Reference sequence input:")
@@ -31,7 +31,7 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True, model_is_
     seq_align = seq_aligner.align(ref_seq, model_seq)
     if example:
         print(f"Aligned sequences:")
-        print(textwrap.wrap(str(seq_align[0])))
+        print(seq_align[0])
     aligner =  Bio.PDB.StructureAlignment(seq_align[0], ref_structure, model_structure)
     map_0, map_1 = aligner.get_maps()
 
@@ -55,7 +55,7 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True, model_is_
         print(f"Rotation matrix:{nl}{np.array2string(super_imposer.rotran[0])}")
         print(f"Translation vector:{nl}{np.array2string(super_imposer.rotran[1])}")
 
-    io = Bio.PDB.PDBIO()
+    io = Bio.PDB.MMCIFIO()
 
     if ligname is not None:
         for res in ref_structure.get_residues():
@@ -66,10 +66,10 @@ def align_on_ref(model_file, ref_file, ligname = None, example = True, model_is_
         add_ghost_atom(ref_structure, coords)
         add_ghost_atom(model_structure, coords)
         io.set_structure(ref_structure) 
-        io.save(ref_file.split('.')[0]+'_aligned.pdb')
+        io.save(ref_file.split('.')[0]+'_aligned.cif')
 
     io.set_structure(model_structure) 
-    io.save(model_file.split('.')[0]+'_aligned.pdb')
+    io.save(model_file.split('.')[0]+'_aligned.cif')
     
 
 def add_ghost_atom(structure, coords):
@@ -92,10 +92,10 @@ def show_aligned(model_file,
                 width=800,
                 height=600,
                 extension_model='cif',
-                extension_ref='pdb'):
+                extension_ref='cif'):
     view = py3Dmol.view(js='https://3dmol.org/build/3Dmol.js', width = width, height = height)
     view.addModel(open(model_file,'r').read(),extension_model)
-    view.addModel(open(ref_file,'r').read(),extension_refs)
+    view.addModel(open(ref_file,'r').read(),extension_ref)
             
     sele = {'resn': 'GST'}
 
@@ -104,7 +104,7 @@ def show_aligned(model_file,
 
     view.zoomTo()
 
-    for ligname, lig_color in zip(lignames, lig_colors):
+    for ligname, lig_color in zip(lignames, ligand_colors):
         selection_0 = {'model': 0, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
         selection_1 = {'model': 1, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
         view.addStyle(selection_0,{'stick':{'colorscheme':model_sidecahin_color,'radius':0.3}})
@@ -200,7 +200,7 @@ def show_pdb(pdb_file, n_chains, show_sidechains=False, show_mainchains=False, c
     elif color == "chain":
         for n,chain,color in zip(range(n_chains),alphabet_list,pymol_color_list):
            view.setStyle({'chain':chain},{'cartoon': {'color':color}})
-    view.addStyle({'and':[{'resn':"LIG"}]},
+    view.addStyle({'and':[{'resn':"LIG1"}]},
                         {'stick':{'colorscheme':f"coralCarbon",'radius':0.3}})
 
     if show_sidechains:
@@ -261,10 +261,10 @@ def plot_plddts(plddts, Ls=None, dpi=100, fig=True):
 def plot_paes(paes, Ls=None, dpi=100, fig=True):
   #Copied from Colafold
   num_models = len(paes)
-  if fig: plt.figure(figsize=(3*num_models,2), dpi=dpi)
+  if fig: plt.figure(dpi=dpi)
   for n,pae in enumerate(paes):
     plt.subplot(1,num_models,n+1)
-    #plt.title(f"rank_{n+1}")
+    plt.title(f"PAE plot")
     Ln = pae.shape[0]
     plt.imshow(pae,cmap="bwr",vmin=0,vmax=30,extent=(0, Ln, Ln, 0))
     if Ls is not None and len(Ls) > 1: plot_ticks(Ls)
