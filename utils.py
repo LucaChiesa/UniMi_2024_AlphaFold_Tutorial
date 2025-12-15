@@ -104,13 +104,15 @@ def show_aligned(model_file,
 
     view.zoomTo()
 
+    selection_0 = {'model': 0, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
+    selection_1 = {'model': 1, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
+    view.addStyle(selection_0,{'stick':{'colorscheme':model_sidecahin_color,'radius':0.3}})
+    view.addStyle(selection_1,{'stick':{'colorscheme':ref_sidecahin_color,'radius':0.3}})
+
     for ligname, lig_color in zip(lignames, ligand_colors):
-        selection_0 = {'model': 0, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
-        selection_1 = {'model': 1, 'byres': 'true', 'within':{'distance': 10, 'sel': sele}}
-        view.addStyle(selection_0,{'stick':{'colorscheme':model_sidecahin_color,'radius':0.3}})
-        view.addStyle(selection_1,{'stick':{'colorscheme':ref_sidecahin_color,'radius':0.3}})
-        view.setStyle({'resn': ligname}, {'stick':{'colorscheme':ligand_color,'radius':0.3}})
-        view.setClickable({},
+        
+        view.setStyle({'resn': ligname}, {'stick':{'colorscheme':lig_color,'radius':0.3}})
+    view.setClickable({},
                         'true',
                         "function(atom, viewer, event, container){"\
                         "if(atom.label){viewer.removeLabel(atom.label);delete atom.label;}" \
@@ -258,13 +260,13 @@ def plot_plddts(plddts, Ls=None, dpi=100, fig=True):
   plt.xlabel("Positions")
   return plt
 
-def plot_paes(paes, Ls=None, dpi=100, fig=True):
+def plot_paes(paes, Ls=None, dpi=100, fig=True, plot_type='PAE'):
   #Copied from Colafold
   num_models = len(paes)
   if fig: plt.figure(dpi=dpi)
   for n,pae in enumerate(paes):
     plt.subplot(1,num_models,n+1)
-    plt.title(f"PAE plot")
+    plt.title(f"{plot_type} plot")
     Ln = pae.shape[0]
     plt.imshow(pae,cmap="bwr",vmin=0,vmax=30,extent=(0, Ln, Ln, 0))
     if Ls is not None and len(Ls) > 1: plot_ticks(Ls)

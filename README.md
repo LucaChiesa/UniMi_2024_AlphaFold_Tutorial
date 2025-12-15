@@ -5,7 +5,7 @@ In this tutorial we will present you how to predict protein structures using Bol
 
 To participate to the tutorial click on this link to the Colab Notebook:
 
-[Link to the tutorial](https://colab.research.google.com/github/LucaChiesa/UniMi_2024_AlphaFold_Tutorial/blob/master/UniMi_AlphaFold_tutorial.ipynb)
+[Link to the tutorial](https://colab.research.google.com/github/LucaChiesa/UniMi_2024_AlphaFold_Tutorial/blob/Boltz2/UniMi_AlphaFold_tutorial.ipynb)
 
 ### How to
 Here we include a few general notes that might be usefull during the tutorial
